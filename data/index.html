@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>WebSocket Client</title>
+  </head>
+  <body>
+    <h1 align="center">Brake Light Inertial Controller</h1>
+    <p id="status">Connecting...</p>
+    <div>
+        <table  border="0" width="40%">
+            <tr><th colspan="4" align="center">Real-Time Values</th></tr>
+            <tr><td width="25%">&nbsp;</td><td align="right" width="25%">X</td><td align="right" width="25%">Y</td><td align="right" width="25%">Z</td></tr>
+            <tr align="right"><td>Acceleration:</td><td><span id="accelx">--</span></td><td><span id="accely">--</span></td><td><span id="accelz">--</span> </td></tr>
+            <tr align="right"><td>Gyro:</td><td><span id="gyrox">--</span></td><td><span id="gyroy">--</span></td><td><span id="gyroz">--</span></td></tr>
+            </table>
+      </div>
+    <fieldset>
+      <legend><h3>Settings</h3></legend>
+      <label for="sensitivity">Sensitivity: </label>
+      <input type="range" id="sensitivity" min="0" max="100" value="50" oninput="sendControl('sensitivity', this.value)">
+      <span id="sensitivityValue">50</span>
+      <br><br>
+      <fieldset>
+        <legend>Display</legend>
+        <input type="checkbox" id="displayEnabledValue" onchange="sendControl('displayEnabled', this.checked?1:0)">
+        <label for="displayEnabledValue">Enabled</label><br>
+        <input type="checkbox" id="displayInvertedValue" onchange="sendControl('displayInverted', this.checked?1:0)">
+        <label for="displayInvertedValue">Inverted</label><br>
+        </fieldset><br>
+      <fieldset>
+        <legend>WiFi</legend>
+        <label for="WiFiSSIDValue">SSID:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+        <input type="input" id="WiFiSSIDValue" oninput="sendControl('ssid', this.value)"><br><br>
+        <label for="WiFiPassValue">Password:</label>
+        <input type="input" id="WiFiPassValue" oninput="sendControl('Password', this.value)"><br>
+        </fieldset><br>
+      </fieldset>
+    <p id="log"></p>
+
+    <script>
+      const ws = new WebSocket(`ws://${location.hostname}:81/`);
+      const status = document.getElementById("status");
+      const log = document.getElementById("log");
+
+      ws.onopen = () =>
+        {
+        status.textContent = "Connected!";
+        };
+
+      ws.onmessage = (event) =>
+        {
+        const data = JSON.parse(event.data);
+        if (data.type === "initialize")
+          {
+          if (data.key === "sensitivity")
+            {
+            // Initialize the sensitivity slider and display
+            document.getElementById("sensitivity").value = data.value;
+            document.getElementById("sensitivityValue").textContent = data.value;
+            } 
+          else if (data.key === "displayEnabled")
+            {
+            // Set the checkbox state according to the server's value (true/false)
+            document.getElementById("displayEnabledValue").checked = data.value;
+            }
+          }
+        
+        else if (data.type === "control") 
+          {
+          // Handle other control messages if needed
+          console.log(`Control: ${data.key} = ${data.value}`);
+          }
+        else if (data.type === "update")
+          {
+          if (data.key === "accelx")
+            {
+            document.getElementById("accelx").textContent = data.value;
+            }
+          else if (data.key === "accely")
+            {
+            document.getElementById("accely").textContent = data.value;
+            }
+          else if (data.key === "accelz")
+            {
+            document.getElementById("accelz").textContent = data.value;
+            }
+          else if (data.key === "gyrox")
+            {
+            document.getElementById("gyrox").textContent = data.value;
+            }
+          else if (data.key === "gyroy")
+            {
+            document.getElementById("gyroy").textContent = data.value;
+            }
+          else if (data.key === "gyroz")
+            {
+            document.getElementById("gyroz").textContent = data.value;
+            }
+          }
+        //log.innerHTML += `<p>Received: ${event.data}</p>`;
+        };
+
+      ws.onclose = () =>
+        {
+        status.textContent = "Disconnected.";
+        };
+
+      function sendControl(key, value)
+        {
+        document.getElementById(`${key}Value`).textContent = value;
+        ws.send(JSON.stringify({ type: "control", key, value }));
+        log.innerHTML += `Sent: ${key}&nbsp;${value}<br>`;
+        }
+    </script>
+  </body>
+</html>

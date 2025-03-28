@@ -1,5 +1,11 @@
 /* Program to read the GY-521 MPU6050 6-axis Accelerometer Gyroscope Sensor
-   and report the readings to the display, serial port, and/or MQTT broker. */
+   and report the readings to the display, serial port, and/or MQTT broker. 
+   ----------- Note ------------
+   This project has both code and data (a web page) that needs to be uploaded
+   to the processor. The code is uploaded normally, but to upload the web page
+   open a terminal and enter "pio run --target uploadfs".
+   */
+
 
 #include <Arduino.h>
 #include <SPI.h>
@@ -8,10 +14,24 @@
 #include <Adafruit_SSD1306.h>
 #include "I2Cdev.h"
 #include "MPU6050_6Axis_MotionApps20.h"
-//#include "MPU6050_6Axis_MotionApps612.h" // Uncomment this library to work with DMP 6.12 and comment on the above library.
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
+#include <WebSocketsServer.h>
+#include <EEPROM.h>
+#include <FS.h>
+#include <LittleFS.h>
+#include <ArduinoJson.h>
+#include "AccelerationLogger.h"
+
+
+MPU6050 accelgyro;
+
+int16_t ax, ay, az;
+int16_t gx, gy, gz;
+
 
 /* MPU6050 default I2C address is 0x68*/
-MPU6050 mpu;
+//MPU6050 mpu;
 //MPU6050 mpu(0x69); //Use for AD0 high
 //MPU6050 mpu(0x68, &Wire1); //Use for AD0 low, but 2nd Wire (TWI/I2C) object.
 
@@ -42,15 +62,29 @@ reference frame. Yaw is relative if there is no magnetometer present.
 //#define OUTPUT_READABLE_WORLDACCEL
 //#define OUTPUT_TEAPOT
 
-int const INTERRUPT_PIN = 2;  // Define the interruption #0 pin
-
-#define SCREEN_WIDTH 128 // OLED display width, in pixels
-#define SCREEN_HEIGHT 32 // OLED display height, in pixels
-#define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
-#define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+// WebSocket server on port 81
+WebSocketsServer webSocket = WebSocketsServer(81);
+ESP8266WebServer server(80);
 
-bool blinkState;
+// These are the settings that get stored in EEPROM.  They are all in one struct which
+// makes it easier to store and retrieve.
+typedef struct 
+  {
+  bool debug=true;
+  bool displayenabled=true;    //enable the display
+  bool invertdisplay=false;   //rotate display 180 degrees
+  int sensitivity=1000;     //This is braking sensitivity. Lower is more sensitive.
+  char ssid[SSID_SIZE] = "logger"; //connect to this SSID on your phone to configure
+  char wifiPass[PASSWORD_SIZE] = "12345678";
+  } conf;
+
+conf settings; //all settings in one struct makes it easier to store in EEPROM
+boolean settingsAreValid=false;
+
+String lastMessage=""; //contains the last message sent to display. Sometimes need to reshow it
+boolean rssiShowing=false; //used to redraw the RSSI indicator after clearing display
+
 
 /*---MPU6050 Control/Status Variables---*/
 bool DMPReady = false;  // Set true if DMP init was successful
@@ -60,190 +94,320 @@ uint16_t packetSize;    // Expected DMP packet size (default is 42 bytes)
 uint8_t FIFOBuffer[64]; // FIFO storage buffer
 
 /*---Orientation/Motion Variables---*/ 
-Quaternion q;           // [w, x, y, z]         Quaternion container
-VectorInt16 aa;         // [x, y, z]            Accel sensor measurements
-VectorInt16 gy;         // [x, y, z]            Gyro sensor measurements
-VectorInt16 aaReal;     // [x, y, z]            Gravity-free accel sensor measurements
-VectorInt16 aaWorld;    // [x, y, z]            World-frame accel sensor measurements
-VectorFloat gravity;    // [x, y, z]            Gravity vector
-float euler[3];         // [psi, theta, phi]    Euler angle container
-float ypr[3];           // [yaw, pitch, roll]   Yaw/Pitch/Roll container and gravity vector
+// Quaternion q;           // [w, x, y, z]         Quaternion container
+// VectorInt16 aa;         // [x, y, z]            Accel sensor measurements
+// VectorInt16 gy;         // [x, y, z]            Gyro sensor measurements
+// VectorInt16 aaReal;     // [x, y, z]            Gravity-free accel sensor measurements
+// VectorInt16 aaWorld;    // [x, y, z]            World-frame accel sensor measurements
+// VectorFloat gravity;    // [x, y, z]            Gravity vector
+// float euler[3];         // [psi, theta, phi]    Euler angle container
+// float ypr[3];           // [yaw, pitch, roll]   Yaw/Pitch/Roll container and gravity vector
 
 /*-Packet structure for InvenSense teapot demo-*/ 
 uint8_t teapotPacket[14] = { '$', 0x02, 0, 0, 0, 0, 0, 0, 0, 0, 0x00, 0x00, '\r', '\n' };
 
 /*------Interrupt detection routine------*/
 volatile bool MPUInterrupt = false;     // Indicates whether MPU6050 interrupt pin has gone high
-void DMPDataReady() {
-  MPUInterrupt = true;
-}
 
-void setup() {
-  #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
-    Wire.begin();
-    Wire.setClock(400000); // 400kHz I2C clock. Comment on this line if having compilation difficulties
-  #elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
-    Fastwire::setup(400, true);
-  #endif
-  
-  Serial.begin(115200); //115200 is required for Teapot Demo output
-  while (!Serial);
+char dispbuf[32];
 
-  /*Initialize device*/
-  Serial.println(F("Initializing I2C devices..."));
-  mpu.initialize();
-  pinMode(INTERRUPT_PIN, INPUT);
-
-  /*Verify connection*/
-  Serial.println(F("Testing MPU6050 connection..."));
-  if(mpu.testConnection() == false){
-    Serial.println("MPU6050 connection failed");
-    while(true);
-  }
-  else {
-    Serial.println("MPU6050 connection successful");
+/*
+*  Initialize the settings from eeprom. No need to determine if they are valid
+*  in this project.
+*/
+void loadSettings()
+  {
+  EEPROM.get(0,settings);
   }
 
-  /*Wait for Serial input*/
-  Serial.println(F("\nSend any character to begin: "));
-  while (Serial.available() && Serial.read()); // Empty buffer
-  while (!Serial.available());                 // Wait for data
-  while (Serial.available() && Serial.read()); // Empty buffer again
 
-  /* Initializate and configure the DMP*/
-  Serial.println(F("Initializing DMP..."));
-  devStatus = mpu.dmpInitialize();
 
-  /* Supply your gyro offsets here, scaled for min sensitivity */
-  mpu.setXGyroOffset(0);
-  mpu.setYGyroOffset(0);
-  mpu.setZGyroOffset(0);
-  mpu.setXAccelOffset(0);
-  mpu.setYAccelOffset(0);
-  mpu.setZAccelOffset(0);
-
-  /* Making sure it worked (returns 0 if so) */ 
-  if (devStatus == 0) {
-    mpu.CalibrateAccel(6);  // Calibration Time: generate offsets and calibrate our MPU6050
-    mpu.CalibrateGyro(6);
-    Serial.println("These are the Active offsets: ");
-    mpu.PrintActiveOffsets();
-    Serial.println(F("Enabling DMP..."));   //Turning ON DMP
-    mpu.setDMPEnabled(true);
-
-    /*Enable Arduino interrupt detection*/
-    Serial.print(F("Enabling interrupt detection (Arduino external interrupt "));
-    Serial.print(digitalPinToInterrupt(INTERRUPT_PIN));
-    Serial.println(F(")..."));
-    attachInterrupt(digitalPinToInterrupt(INTERRUPT_PIN), DMPDataReady, RISING);
-    MPUIntStatus = mpu.getIntStatus();
-
-    /* Set the DMP Ready flag so the main loop() function knows it is okay to use it */
-    Serial.println(F("DMP ready! Waiting for first interrupt..."));
-    DMPReady = true;
-    packetSize = mpu.dmpGetFIFOPacketSize(); //Get expected DMP packet size for later comparison
-  } 
-  else {
-    Serial.print(F("DMP Initialization failed (code ")); //Print the error code
-    Serial.print(devStatus);
-    Serial.println(F(")"));
-    // 1 = initial memory load failed
-    // 2 = DMP configuration updates failed
+/*
+ * Save the settings to EEPROM. Set the valid flag if everything is filled in.
+ */
+boolean saveSettings()
+  {
+  EEPROM.put(0,settings);
+  return EEPROM.commit();
   }
-  pinMode(LED_BUILTIN, OUTPUT);
-}
+
+
+
+void show(String msg)
+  {
+  display.clearDisplay(); // clear the buffer regardless
+
+  if (settings.displayenabled)
+    {
+    lastMessage=msg; //in case we need to redraw it
+
+    display.setCursor(0, 0);  // Top-left corner
+
+    if (msg.length()>20)
+      {
+      display.setTextSize(1);      // tiny text
+      }
+    else if (msg.length()>7 || rssiShowing) //make room for rssi indicator
+      {
+      display.setTextSize(2);      // small text
+      }
+    else
+      {
+      display.setTextSize(3);      // Normal 1:1 pixel scale
+      }
+    display.println(msg);
+    }
+  display.display(); // move the buffer contents to the OLED
+  }
+
+void show(uint16_t val, String suffix)
+  {
+  String msg=String(val)+suffix;
+  show(msg);
+  }
+
+
+
+
+void handleWebSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
+  {
+  switch (type)
+    {
+    case WStype_CONNECTED:
+      {
+      IPAddress clientIP = webSocket.remoteIP(num);
+      show("Conn from\n"+clientIP.toString());
+
+      // Send sensitivity value
+      DynamicJsonDocument doc(256);
+      doc["type"] = "initialize";
+      doc["key"] = "sensitivity";
+      doc["value"] = map(settings.sensitivity, 0, 5000, 100, 0); // Map to slider range
+      String message;
+      serializeJson(doc, message);
+      webSocket.sendTXT(num, message);
+      
+      //send display enabled status
+      doc["key"] = "displayEnabled";
+      doc["value"] = settings.displayenabled;// 1=true, 0=false or use boolean values
+      serializeJson(doc, message);
+      webSocket.sendTXT(num, message);
+      
+      //send display inverted status
+      doc["key"] = "displayInverted";
+      doc["value"] = settings.invertdisplay;// 1=true, 0=false or use boolean values
+      serializeJson(doc, message);
+      webSocket.sendTXT(num, message);
+     
+      //send WiFi SSID
+      doc["key"] = "ssid";
+      doc["value"] = settings.ssid;
+      serializeJson(doc, message);
+      webSocket.sendTXT(num, message);
+     
+      //send WiFi password
+      doc["key"] = "password";
+      doc["value"] = settings.wifiPass;
+      serializeJson(doc, message);
+      webSocket.sendTXT(num, message);
+
+      break;
+      }
+    case WStype_TEXT:
+      {
+      //Serial.printf("[%u] Received: %s\n", num, payload);
+      String message = String((char *)payload);
+
+      DynamicJsonDocument doc(256);
+      deserializeJson(doc, message);
+
+      String type = doc["type"];
+      if (type == "control")
+        {
+        String key = doc["key"];
+        int value = doc["value"];
+        if (key == "sensitivity")
+          {
+          settings.sensitivity = map(value,0,100,5000,0);
+          saveSettings();
+          }
+        else if (key == "displayEnabled")
+          {
+          // value should be 1 (checked) or 0 (unchecked)
+          settings.displayenabled = (value != 0);
+          saveSettings();
+          }
+        else if (key == "displayInverted")
+          {
+          // value should be 1 (checked) or 0 (unchecked)
+          settings.invertdisplay = (value != 0);
+          saveSettings();
+          }
+        else if (key == "ssid")
+          {
+          strcpy(settings.ssid, doc["value"]);
+          saveSettings();
+          }
+        else if (key == "password")
+          {
+          strcpy(settings.wifiPass, doc["value"]);
+          saveSettings();
+          }
+
+        }
+      break;
+      }
+    case WStype_DISCONNECTED:
+      {
+      show("Disc");
+      break;
+      }
+    }
+  }
+
+
+
+void sendUpdates()
+  {
+  DynamicJsonDocument doc(128);
+
+  doc["type"] = "update";
+  doc["key"] = "accelx";
+  doc["value"] = ax;
+  String json;
+  serializeJson(doc, json);
+  webSocket.broadcastTXT(json);
+
+  doc["key"] = "accely";
+  doc["value"] = ay;
+  serializeJson(doc, json);
+  webSocket.broadcastTXT(json);
+ 
+  doc["key"] = "accelz";
+  doc["value"] = az;
+  serializeJson(doc, json);
+  webSocket.broadcastTXT(json);
+
+  doc["key"] = "gyrox";
+  doc["value"] = gx;
+  serializeJson(doc, json);
+  webSocket.broadcastTXT(json);
+
+  doc["key"] = "gyroy";
+  doc["value"] = gy;
+  serializeJson(doc, json);
+  webSocket.broadcastTXT(json);
+ 
+  doc["key"] = "gyroz";
+  doc["value"] = gz;
+  serializeJson(doc, json);
+  webSocket.broadcastTXT(json);
+  }
+
+  void initDisplay()
+  {
+  bool displayOk=display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS);
+  if (settings.displayenabled)
+    {
+    if(!displayOk) 
+      {
+      Serial.println(F("SSD1306 allocation failed"));
+      delay(5000);
+      ESP.reset();  //try again
+      }
+    else  
+      {
+      display.setRotation(settings.invertdisplay?2:0); //make it look right
+      display.clearDisplay();       //no initial logo
+      display.setTextSize(3);      // Normal 1:1 pixel scale
+      display.setTextColor(SSD1306_WHITE); // Draw white text
+      display.setCursor(0, 0);     // Start at top-left corner
+      display.cp437(true);         // Use full 256 char 'Code Page 437' font
+      }
+
+    if (settings.debug)
+      show("Init");
+    else
+      show("Display OK");
+    }
+  }
+
+
+
+void setup() 
+  {
+  EEPROM.begin(sizeof(settings)); //fire up the eeprom section of flash
+
+  loadSettings();
+  Wire.begin(SDA_PIN, SCL_PIN);
+  Wire.setClock(400000); // 400kHz I2C clock. Comment on this line if having compilation difficulties
+  initDisplay();
+  accelgyro.initialize();
+
+  show(accelgyro.testConnection() ? "MPU6050 OK" : "MPU6050 Fail");
+
+  // set up the on-board brake light simulation LED
+  pinMode(BRAKE_LED_PORT,OUTPUT);
+  digitalWrite(BRAKE_LED_PORT,BRAKE_OFF);  //turn it off
+
+  // Initialize LittleFS
+  if (!LittleFS.begin())
+    {
+    show("LittleFS\nFailed");
+    return;
+    }
+  else   
+    show("LittleFS\nOK");
+
+  // Open the WiFi
+  show("WiFi Start");
+  delay(1000);
+  WiFi.softAP(settings.ssid, settings.wifiPass);
+    
+  show(WiFi.softAPIP().toString().c_str());
+  delay(3000);
+
+  // Start WebSocket server
+  webSocket.begin();
+  webSocket.onEvent(handleWebSocketEvent);
+
+  server.serveStatic("/", LittleFS, "/index.html");
+  server.begin();
+  show("init done");
+  }
 
 void loop() 
   {
-  if (!DMPReady) return; // Stop the program if DMP programming fails.
-    
-  /* Read a packet from FIFO */
-  if (mpu.dmpGetCurrentFIFOPacket(FIFOBuffer)) // Get the Latest packet
-    {  
-    #ifdef OUTPUT_READABLE_YAWPITCHROLL
-      /* Display Euler angles in degrees */
-      mpu.dmpGetQuaternion(&q, FIFOBuffer);
-      mpu.dmpGetGravity(&gravity, &q);
-      mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
-      Serial.print("ypr\t");
-      Serial.print(ypr[0] * 180/M_PI);
-      Serial.print("\t");
-      Serial.print(ypr[1] * 180/M_PI);
-      Serial.print("\t");
-      Serial.println(ypr[2] * 180/M_PI);
-    #endif
-        
-    #ifdef OUTPUT_READABLE_QUATERNION
-      /* Display Quaternion values in easy matrix form: [w, x, y, z] */
-      mpu.dmpGetQuaternion(&q, FIFOBuffer);
-      Serial.print("quat\t");
-      Serial.print(q.w);
-      Serial.print("\t");
-      Serial.print(q.x);
-      Serial.print("\t");
-      Serial.print(q.y);
-      Serial.print("\t");
-      Serial.println(q.z);
-    #endif
+  // A test
+//   static int count=0;
+//   static bool ledState=BRAKE_OFF;
+//   static unsigned long previousMillis = 0;
+//   const unsigned long interval = 1000; // interval in milliseconds
 
-    #ifdef OUTPUT_READABLE_EULER
-      /* Display Euler angles in degrees */
-      mpu.dmpGetQuaternion(&q, FIFOBuffer);
-      mpu.dmpGetEuler(euler, &q);
-      Serial.print("euler\t");
-      Serial.print(euler[0] * 180/M_PI);
-      Serial.print("\t");
-      Serial.print(euler[1] * 180/M_PI);
-      Serial.print("\t");
-      Serial.println(euler[2] * 180/M_PI);
-    #endif
+//   unsigned long currentMillis = millis();
+//   if (currentMillis - previousMillis >= interval) 
+//     {
+//     previousMillis = currentMillis;
+//     ledState = (ledState == BRAKE_ON) ? BRAKE_OFF : BRAKE_ON;
+//     digitalWrite(BRAKE_LED_PORT, ledState);
+//     String cn=String(count++);
+// //    show(cn);
+//     }  
 
-    #ifdef OUTPUT_READABLE_REALACCEL
-      /* Display real acceleration, adjusted to remove gravity */
-      mpu.dmpGetQuaternion(&q, FIFOBuffer);
-      mpu.dmpGetAccel(&aa, FIFOBuffer);
-      mpu.dmpGetGravity(&gravity, &q);
-      mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
-      Serial.print("areal\t");
-      Serial.print(aaReal.x);
-      Serial.print("\t");
-      Serial.print(aaReal.y);
-      Serial.print("\t");
-      Serial.println(aaReal.z);
-    #endif
 
-    #ifdef OUTPUT_READABLE_WORLDACCEL
-      /* Display initial world-frame acceleration, adjusted to remove gravity
-      and rotated based on known orientation from Quaternion */
-      mpu.dmpGetQuaternion(&q, FIFOBuffer);
-      mpu.dmpGetAccel(&aa, FIFOBuffer);
-      mpu.dmpGetGravity(&gravity, &q);
-      mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
-      mpu.dmpGetLinearAccelInWorld(&aaWorld, &aaReal, &q);
-      Serial.print("aworld\t");
-      Serial.print(aaWorld.x);
-      Serial.print("\t");
-      Serial.print(aaWorld.y);
-      Serial.print("\t");
-      Serial.println(aaWorld.z);
-    #endif
-    
-    #ifdef OUTPUT_TEAPOT
-      /* Display quaternion values in InvenSense Teapot demo format */
-      teapotPacket[2] = FIFOBuffer[0];
-      teapotPacket[3] = FIFOBuffer[1];
-      teapotPacket[4] = FIFOBuffer[4];
-      teapotPacket[5] = FIFOBuffer[5];
-      teapotPacket[6] = FIFOBuffer[8];
-      teapotPacket[7] = FIFOBuffer[9];
-      teapotPacket[8] = FIFOBuffer[12];
-      teapotPacket[9] = FIFOBuffer[13];
-      Serial.write(teapotPacket, 14);
-      teapotPacket[11]++; // PacketCount, loops at 0xFF on purpose
-     #endif
+  accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+  sprintf(dispbuf,"X%05d Y%05d Z%05d\nX%05d Y%05d Z%05d",ax,ay,az,gx,gy,gz);
+  show(String(dispbuf));
+  digitalWrite(BRAKE_LED_PORT, ay<(-settings.sensitivity));
+  
+  delay(100);
+  webSocket.loop(); // Keep WebSocket server running
+  server.handleClient();
 
-    /* Blink LED to indicate activity */
-    blinkState = !blinkState;
-    digitalWrite(LED_BUILTIN, blinkState);
+  static unsigned long lastUpdate = 0;
+  if (millis() - lastUpdate > 500)
+    {
+    sendUpdates();
+    lastUpdate = millis();
     }
   }

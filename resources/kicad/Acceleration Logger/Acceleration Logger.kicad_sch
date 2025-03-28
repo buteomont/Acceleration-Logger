@@ -7,7 +7,7 @@
 	(title_block
 		(title "Acceleration Logger")
 		(date "2025-03-06")
-		(rev "0.0.1")
+		(rev "0.0.2")
 	)
 	(lib_symbols
 		(symbol "Connector:Screw_Terminal_01x02"
@@ -352,8 +352,8 @@
 					)
 				)
 			)
-			(property "Footprint" ""
-				(at 10.16 11.176 0)
+			(property "Footprint" "Davids_Footprints:MPU6050_Accelerometer_Module"
+				(at 7.874 -2.032 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -1983,10 +1983,10 @@
 		(uuid "672f63df-970f-47c5-9edd-80950c05cc4d")
 	)
 	(junction
-		(at 121.158 90.932)
+		(at 121.158 76.454)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "8b0e41c2-13bc-4bb1-ae6e-dc66c85f6c10")
+		(uuid "89738271-8fff-4806-aa9d-1bec4c33f69e")
 	)
 	(junction
 		(at 109.22 59.182)
@@ -2052,6 +2052,16 @@
 	)
 	(wire
 		(pts
+			(xy 138.938 106.68) (xy 138.938 114.554)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "137ddb0c-c186-4141-8f0b-a326f02f8485")
+	)
+	(wire
+		(pts
 			(xy 163.576 89.662) (xy 163.576 96.52)
 		)
 		(stroke
@@ -2069,16 +2079,6 @@
 			(type default)
 		)
 		(uuid "1e7c444e-c6b8-4307-b27c-92147dbd5744")
-	)
-	(wire
-		(pts
-			(xy 121.158 114.554) (xy 121.158 90.932)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1f5ab17b-0912-4a9f-8e3d-02de4a057259")
 	)
 	(wire
 		(pts
@@ -2142,13 +2142,13 @@
 	)
 	(wire
 		(pts
-			(xy 119.888 114.554) (xy 121.158 114.554)
+			(xy 121.158 70.612) (xy 121.158 76.454)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "3538b0a9-97da-4e14-83e6-dc5724a1d1f2")
+		(uuid "35740dd1-9776-4529-8c13-b43ee2caf6ee")
 	)
 	(wire
 		(pts
@@ -2199,16 +2199,6 @@
 			(type default)
 		)
 		(uuid "42860476-1f60-45c8-8461-9701cc85a134")
-	)
-	(wire
-		(pts
-			(xy 78.74 137.922) (xy 78.74 122.174)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "466e8af7-5186-4955-9373-d01a8d27c7ac")
 	)
 	(wire
 		(pts
@@ -2332,16 +2322,6 @@
 	)
 	(wire
 		(pts
-			(xy 183.388 137.922) (xy 78.74 137.922)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "976db734-61dd-459a-9b89-c28d0fb1d67a")
-	)
-	(wire
-		(pts
 			(xy 127 90.678) (xy 127 94.234)
 		)
 		(stroke
@@ -2359,16 +2339,6 @@
 			(type default)
 		)
 		(uuid "9f996074-5b01-42d9-8c1f-ccb4f40adf06")
-	)
-	(wire
-		(pts
-			(xy 183.388 113.538) (xy 183.388 137.922)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a3d9ae3a-17dd-48a5-aad6-e5607355d97f")
 	)
 	(wire
 		(pts
@@ -2442,26 +2412,6 @@
 	)
 	(wire
 		(pts
-			(xy 141.224 113.538) (xy 183.388 113.538)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bf476602-e3fd-4b9b-ab2a-37f9e5ad0c27")
-	)
-	(wire
-		(pts
-			(xy 78.74 122.174) (xy 81.788 122.174)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c1e35f54-d63a-4f8a-9315-439923c0200b")
-	)
-	(wire
-		(pts
 			(xy 97.282 90.932) (xy 97.282 94.742)
 		)
 		(stroke
@@ -2472,13 +2422,23 @@
 	)
 	(wire
 		(pts
-			(xy 141.224 106.68) (xy 141.224 113.538)
+			(xy 75.946 122.174) (xy 75.946 76.454)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "c8225241-0fd6-4bf3-861f-1457c242709f")
+		(uuid "c7d3dfdd-f05c-47ea-881a-8b4cfbfb3b88")
+	)
+	(wire
+		(pts
+			(xy 81.788 122.174) (xy 75.946 122.174)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c85111c6-5e07-4e43-a8db-71cd970bf180")
 	)
 	(wire
 		(pts
@@ -2552,6 +2512,16 @@
 	)
 	(wire
 		(pts
+			(xy 75.946 76.454) (xy 121.158 76.454)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e53e533b-de31-451d-a215-b20ae8c31c0e")
+	)
+	(wire
+		(pts
 			(xy 64.262 58.42) (xy 71.628 58.42)
 		)
 		(stroke
@@ -2569,6 +2539,26 @@
 			(type default)
 		)
 		(uuid "f2fcdd74-09db-4093-8c1c-806a3614462c")
+	)
+	(wire
+		(pts
+			(xy 141.224 106.68) (xy 138.938 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f5bdb6ad-f7fa-4673-a085-6b3125629320")
+	)
+	(wire
+		(pts
+			(xy 121.158 60.96) (xy 121.158 65.532)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f8113fe7-d4f3-4056-accc-5ca6bbc05589")
 	)
 	(wire
 		(pts
@@ -2590,6 +2580,16 @@
 		)
 		(uuid "fd115caf-ccc2-4619-88d4-2918ed92e743")
 	)
+	(wire
+		(pts
+			(xy 138.938 114.554) (xy 119.888 114.554)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fde6939a-2e9b-44f7-928c-e70a0225fe5b")
+	)
 	(label "+5V"
 		(at 74.168 59.182 0)
 		(effects
@@ -2599,6 +2599,26 @@
 			(justify left bottom)
 		)
 		(uuid "417b20f9-028a-4c0e-8933-f94c682d6ac1")
+	)
+	(label "SCL"
+		(at 120.396 119.888 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "59847445-3c00-4a74-a23d-0dfa4fc18e8e")
+	)
+	(label "SDA"
+		(at 120.396 117.094 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f816ee94-a987-4ba0-85a1-8967febdc3cd")
 	)
 	(symbol
 		(lib_id "Connector:Screw_Terminal_01x02")
@@ -2806,6 +2826,72 @@
 			(project "Acceleration Logger"
 				(path "/9ffc3f79-5742-486a-81da-0f55a501c912"
 					(reference "#PWR011")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3V3")
+		(at 121.158 60.96 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "2e15b5d1-e5bc-4b6c-83c9-1fd56c772cfc")
+		(property "Reference" "#PWR015"
+			(at 121.158 64.77 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 121.158 56.642 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 121.158 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 121.158 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3V3\""
+			(at 121.158 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "9bf63425-d78b-44d3-ba7a-78895d62dd44")
+		)
+		(instances
+			(project "Acceleration Logger"
+				(path "/9ffc3f79-5742-486a-81da-0f55a501c912"
+					(reference "#PWR015")
 					(unit 1)
 				)
 			)
@@ -3482,6 +3568,76 @@
 			(project ""
 				(path "/9ffc3f79-5742-486a-81da-0f55a501c912"
 					(reference "U3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_Small_US")
+		(at 121.158 68.072 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "807acbc2-64f0-4c72-8808-6a99043ac5a4")
+		(property "Reference" "R3"
+			(at 122.936 66.8019 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1K"
+			(at 122.936 69.3419 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
+			(at 121.158 68.072 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 121.158 68.072 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor, small US symbol"
+			(at 121.158 68.072 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "14ea415f-32f0-4027-a90e-6a3296d7537b")
+		)
+		(pin "1"
+			(uuid "feb2205e-f811-473e-bdb8-5d103e2a2b87")
+		)
+		(instances
+			(project "Acceleration Logger"
+				(path "/9ffc3f79-5742-486a-81da-0f55a501c912"
+					(reference "R3")
 					(unit 1)
 				)
 			)
