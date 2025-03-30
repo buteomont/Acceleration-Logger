@@ -160,12 +160,19 @@ void show(String msg)
   display.display(); // move the buffer contents to the OLED
   }
 
-void show(uint16_t val, String suffix)
-  {
-  String msg=String(val)+suffix;
-  show(msg);
-  }
+// void show(uint16_t val, String suffix)
+//   {
+//   String msg=String(val)+suffix;
+//   show(msg);
+//   }
 
+void show(String msg, bool override)
+  {
+  bool oldVal=settings.displayenabled; //Save the disabled flag
+  settings.displayenabled=true;       //Override it
+  show(msg);
+  settings.displayenabled=oldVal;     //Put it back
+  }
 
 
 
@@ -200,13 +207,13 @@ void handleWebSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t l
       webSocket.sendTXT(num, message);
      
       //send WiFi SSID
-      doc["key"] = "ssid";
+      doc["key"] = "WiFiSSID";
       doc["value"] = settings.ssid;
       serializeJson(doc, message);
       webSocket.sendTXT(num, message);
      
       //send WiFi password
-      doc["key"] = "password";
+      doc["key"] = "WiFiPass";
       doc["value"] = settings.wifiPass;
       serializeJson(doc, message);
       webSocket.sendTXT(num, message);
@@ -242,13 +249,14 @@ void handleWebSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t l
           // value should be 1 (checked) or 0 (unchecked)
           settings.invertdisplay = (value != 0);
           saveSettings();
+          display.setRotation(settings.invertdisplay?2:0); //make it look right
           }
-        else if (key == "ssid")
+        else if (key == "WiFiSSID")
           {
           strcpy(settings.ssid, doc["value"]);
           saveSettings();
           }
-        else if (key == "password")
+        else if (key == "WiFiPass")
           {
           strcpy(settings.wifiPass, doc["value"]);
           saveSettings();
@@ -307,30 +315,28 @@ void sendUpdates()
   void initDisplay()
   {
   bool displayOk=display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS);
-  if (settings.displayenabled)
+  if(!displayOk) 
     {
-    if(!displayOk) 
-      {
-      Serial.println(F("SSD1306 allocation failed"));
-      delay(5000);
-      ESP.reset();  //try again
-      }
-    else  
-      {
-      display.setRotation(settings.invertdisplay?2:0); //make it look right
-      display.clearDisplay();       //no initial logo
-      display.setTextSize(3);      // Normal 1:1 pixel scale
-      display.setTextColor(SSD1306_WHITE); // Draw white text
-      display.setCursor(0, 0);     // Start at top-left corner
-      display.cp437(true);         // Use full 256 char 'Code Page 437' font
-      }
-
-    if (settings.debug)
-      show("Init");
-    else
-      show("Display OK");
+    Serial.println(F("SSD1306 allocation failed"));
+    delay(5000);
+    ESP.reset();  //try again
     }
+  else  
+    {
+    display.setRotation(settings.invertdisplay?2:0); //make it look right
+    display.clearDisplay();       //no initial logo
+    display.setTextSize(3);      // Normal 1:1 pixel scale
+    display.setTextColor(SSD1306_WHITE); // Draw white text
+    display.setCursor(0, 0);     // Start at top-left corner
+    display.cp437(true);         // Use full 256 char 'Code Page 437' font
+    }
+
+  if (settings.debug)
+    show("Init");
+  else
+    show("Display OK");
   }
+  
 
 
 
@@ -344,7 +350,7 @@ void setup()
   initDisplay();
   accelgyro.initialize();
 
-  show(accelgyro.testConnection() ? "MPU6050 OK" : "MPU6050 Fail");
+  show(accelgyro.testConnection() ? "MPU6050 OK" : "MPU6050 Fail",true);
 
   // set up the on-board brake light simulation LED
   pinMode(BRAKE_LED_PORT,OUTPUT);
@@ -353,7 +359,7 @@ void setup()
   // Initialize LittleFS
   if (!LittleFS.begin())
     {
-    show("LittleFS\nFailed");
+    show("LittleFS\nFailed",true);
     return;
     }
   else   
@@ -363,9 +369,14 @@ void setup()
   show("WiFi Start");
   delay(1000);
   WiFi.softAP(settings.ssid, settings.wifiPass);
-    
-  show(WiFi.softAPIP().toString().c_str());
-  delay(3000);
+  
+  char buff[6+SSID_SIZE+6+PASSWORD_SIZE+18]; //"SSID: xxxxxxx\nPASS: xxxxxx\n192.168.4.1"
+  sprintf(buff,"SSID: %s\nPass: %s\n%s",
+          settings.ssid,
+          settings.wifiPass,
+          WiFi.softAPIP().toString().c_str());
+  show(buff,true);
+  delay(5000);
 
   // Start WebSocket server
   webSocket.begin();
@@ -378,29 +389,19 @@ void setup()
 
 void loop() 
   {
-  // A test
-//   static int count=0;
-//   static bool ledState=BRAKE_OFF;
-//   static unsigned long previousMillis = 0;
-//   const unsigned long interval = 1000; // interval in milliseconds
+  static unsigned long previousMillis = 0;
+  const unsigned long interval = 250; // interval in milliseconds
 
-//   unsigned long currentMillis = millis();
-//   if (currentMillis - previousMillis >= interval) 
-//     {
-//     previousMillis = currentMillis;
-//     ledState = (ledState == BRAKE_ON) ? BRAKE_OFF : BRAKE_ON;
-//     digitalWrite(BRAKE_LED_PORT, ledState);
-//     String cn=String(count++);
-// //    show(cn);
-//     }  
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= interval) 
+    {
+    previousMillis = currentMillis;
+    accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+    sprintf(dispbuf,"X%05d Y%05d Z%05d\nX%05d Y%05d Z%05d",ax,ay,az,gx,gy,gz);
+    show(String(dispbuf));
+    digitalWrite(BRAKE_LED_PORT, ay<(-settings.sensitivity));
+    }
 
-
-  accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
-  sprintf(dispbuf,"X%05d Y%05d Z%05d\nX%05d Y%05d Z%05d",ax,ay,az,gx,gy,gz);
-  show(String(dispbuf));
-  digitalWrite(BRAKE_LED_PORT, ay<(-settings.sensitivity));
-  
-  delay(100);
   webSocket.loop(); // Keep WebSocket server running
   server.handleClient();
 

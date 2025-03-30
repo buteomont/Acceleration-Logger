@@ -29,10 +29,17 @@
         </fieldset><br>
       <fieldset>
         <legend>WiFi</legend>
-        <label for="WiFiSSIDValue">SSID:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
-        <input type="input" id="WiFiSSIDValue" oninput="sendControl('ssid', this.value)"><br><br>
-        <label for="WiFiPassValue">Password:</label>
-        <input type="input" id="WiFiPassValue" oninput="sendControl('Password', this.value)"><br>
+        <table border="0">
+            <tr>
+                <td align="right">SSID:</td>
+                <td><input type="input" id="WiFiSSIDValue"></td>
+                <td rowspan="2"><input type="button" onclick="doWifi()" value="Change Wifi"></td>
+                </tr>
+            <tr>
+                <td align="right">Password:</td>
+                <td><input type="input" id="WiFiPassValue"></td>
+                </tr>
+            </table>
         </fieldset><br>
       </fieldset>
     <p id="log"></p>
@@ -60,15 +67,26 @@
             } 
           else if (data.key === "displayEnabled")
             {
-            // Set the checkbox state according to the server's value (true/false)
             document.getElementById("displayEnabledValue").checked = data.value;
+            }
+          else if (data.key === "displayInverted")
+            {
+            document.getElementById("displayInvertedValue").checked = data.value;
+            }
+          else if (data.key === "WiFiSSID")
+            {
+            document.getElementById("WiFiSSIDValue").value = data.value;
+            }
+          else if (data.key === "WiFiPass")
+            {
+            document.getElementById("WiFiPassValue").value = data.value;
             }
           }
         
         else if (data.type === "control") 
           {
           // Handle other control messages if needed
-          console.log(`Control: ${data.key} = ${data.value}`);
+        //  console.log(`Control: ${data.key} = ${data.value}`);
           }
         else if (data.type === "update")
           {
@@ -105,11 +123,17 @@
         status.textContent = "Disconnected.";
         };
 
+      function doWifi()
+        {
+        sendControl("WiFiSSID", WiFiSSIDValue.value);
+        sendControl("WiFiPass", WiFiPassValue.value);
+        }
+
       function sendControl(key, value)
         {
         document.getElementById(`${key}Value`).textContent = value;
         ws.send(JSON.stringify({ type: "control", key, value }));
-        log.innerHTML += `Sent: ${key}&nbsp;${value}<br>`;
+    //    log.innerHTML += `Sent: ${key}&nbsp;${value}<br>`;
         }
     </script>
   </body>
