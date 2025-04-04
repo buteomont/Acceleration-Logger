@@ -3,7 +3,7 @@
    ----------- Note ------------
    This project has both code and data (a web page) that needs to be uploaded
    to the processor. The code is uploaded normally, but to upload the web page
-   open a terminal and enter "pio run --target uploadfs".
+   open a terminal and enter "pio run --target uploadfs -v".
    */
 
 
@@ -109,7 +109,7 @@ uint8_t teapotPacket[14] = { '$', 0x02, 0, 0, 0, 0, 0, 0, 0, 0, 0x00, 0x00, '\r'
 /*------Interrupt detection routine------*/
 volatile bool MPUInterrupt = false;     // Indicates whether MPU6050 interrupt pin has gone high
 
-char dispbuf[32];
+char dispbuf[40];
 
 /*
 *  Initialize the settings from eeprom. No need to determine if they are valid
