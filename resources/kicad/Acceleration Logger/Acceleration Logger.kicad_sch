@@ -5,9 +5,9 @@
 	(uuid "9ffc3f79-5742-486a-81da-0f55a501c912")
 	(paper "A4")
 	(title_block
-		(title "Acceleration Logger")
-		(date "2025-03-06")
-		(rev "0.0.2")
+		(title "Acceleration Logger and indicator")
+		(date "2025-04-07")
+		(rev "0.1.0")
 	)
 	(lib_symbols
 		(symbol "Connector:Screw_Terminal_01x02"
@@ -538,208 +538,6 @@
 						)
 					)
 					(number "8"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-		)
-		(symbol "Davids_Symbols:NPN_Transistor_with_correct_pinout_for_SOT-23"
-			(pin_names
-				(offset 0) hide)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "Q"
-				(at 5.08 1.905 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left)
-				)
-			)
-			(property "Value" "NPN_Transistor_with_correct_pinout_for_SOT-23"
-				(at 8.636 4.064 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left)
-				)
-			)
-			(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-				(at 5.08 -2.032 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-						(italic yes)
-					)
-					(justify left)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "https://www.onsemi.com/pub/Collateral/MMBTA42LT1-D.PDF"
-				(at -6.858 21.082 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left)
-					(hide yes)
-				)
-			)
-			(property "Description" "0.5A Ic, 300V Vce, NPN High Voltage Transistor, SOT-23"
-				(at 33.782 8.636 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "NPN High Voltage Transistor"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_fp_filters" "SOT?23*"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "NPN_Transistor_with_correct_pinout_for_SOT-23_0_1"
-				(polyline
-					(pts
-						(xy 0 0) (xy 0.635 0)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0.635 0.635) (xy 2.54 2.54)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0.635 -0.635) (xy 2.54 -2.54) (xy 2.54 -2.54)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0.635 1.905) (xy 0.635 -1.905) (xy 0.635 -1.905)
-					)
-					(stroke
-						(width 0.508)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 1.27 -1.778) (xy 1.778 -1.27) (xy 2.286 -2.286) (xy 1.27 -1.778) (xy 1.27 -1.778)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type outline)
-					)
-				)
-				(circle
-					(center 1.27 0)
-					(radius 2.8194)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "NPN_Transistor_with_correct_pinout_for_SOT-23_1_1"
-				(pin input line
-					(at -5.08 0 0)
-					(length 5.08)
-					(name "B"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 2.54 -5.08 90)
-					(length 2.54)
-					(name "E"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 2.54 5.08 270)
-					(length 2.54)
-					(name "C"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1716,6 +1514,301 @@
 				)
 			)
 		)
+		(symbol "Transistor_FET:IRLML6244"
+			(pin_names hide)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "Q"
+				(at 5.08 1.905 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Value" "IRLML6244"
+				(at 5.08 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+				(at 5.08 -1.905 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+						(italic yes)
+					)
+					(justify left)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "https://www.infineon.com/dgdl/Infineon-IRLML6244-DataSheet-v01_01-EN.pdf?fileId=5546d462533600a4015356686fed261f"
+				(at 5.08 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+					(hide yes)
+				)
+			)
+			(property "Description" "6.3A Id, 20V Vds, 21mOhm Rds, N-Channel StrongIRFET Power MOSFET, SOT-23"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "N-Channel StrongIRFET MOSFET Load switch"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "SOT?23*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "IRLML6244_0_1"
+				(polyline
+					(pts
+						(xy 0.254 0) (xy -2.54 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.254 1.905) (xy 0.254 -1.905)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 -1.27) (xy 0.762 -2.286)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 0.508) (xy 0.762 -0.508)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 2.286) (xy 0.762 1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.54 2.54) (xy 2.54 1.778)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.54 -2.54) (xy 2.54 0) (xy 0.762 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 -1.778) (xy 3.302 -1.778) (xy 3.302 1.778) (xy 0.762 1.778)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.016 0) (xy 2.032 0.381) (xy 2.032 -0.381) (xy 1.016 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.794 0.508) (xy 2.921 0.381) (xy 3.683 0.381) (xy 3.81 0.254)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 3.302 0.381) (xy 2.921 -0.254) (xy 3.683 -0.254) (xy 3.302 0.381)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 1.651 0)
+					(radius 2.794)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 2.54 -1.778)
+					(radius 0.254)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(circle
+					(center 2.54 1.778)
+					(radius 0.254)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+			)
+			(symbol "IRLML6244_1_1"
+				(pin input line
+					(at -5.08 0 0)
+					(length 2.54)
+					(name "G"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 2.54 -5.08 90)
+					(length 2.54)
+					(name "S"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 2.54 5.08 270)
+					(length 2.54)
+					(name "D"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
 		(symbol "power:+3V3"
 			(power)
 			(pin_names
@@ -2022,16 +2115,6 @@
 	)
 	(wire
 		(pts
-			(xy 172.212 86.614) (xy 178.308 86.614)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0b520636-fbf9-4658-b8d7-9fd109cfdabf")
-	)
-	(wire
-		(pts
 			(xy 84.328 66.548) (xy 84.328 69.088)
 		)
 		(stroke
@@ -2072,6 +2155,16 @@
 	)
 	(wire
 		(pts
+			(xy 188.468 96.52) (xy 186.69 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1db7a6b9-9f96-4559-b6a0-b4ecf8b8ae10")
+	)
+	(wire
+		(pts
 			(xy 163.576 76.454) (xy 163.576 84.582)
 		)
 		(stroke
@@ -2079,6 +2172,16 @@
 			(type default)
 		)
 		(uuid "1e7c444e-c6b8-4307-b27c-92147dbd5744")
+	)
+	(wire
+		(pts
+			(xy 186.69 96.52) (xy 186.69 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2043a704-24e1-4ec2-981a-c8a9bbd27017")
 	)
 	(wire
 		(pts
@@ -2172,13 +2275,13 @@
 	)
 	(wire
 		(pts
-			(xy 172.212 91.44) (xy 172.212 86.614)
+			(xy 186.69 93.98) (xy 186.69 89.662)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "3c757254-6cf9-45b0-9e05-052389f00c28")
+		(uuid "3caa7e10-536a-45dc-a311-a30c653570dc")
 	)
 	(wire
 		(pts
@@ -2262,13 +2365,23 @@
 	)
 	(wire
 		(pts
-			(xy 178.308 84.074) (xy 172.212 84.074)
+			(xy 188.468 93.98) (xy 186.69 93.98)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "76abd880-6195-4979-ab65-533870394f42")
+		(uuid "74c99b25-2ad5-455c-9dbb-24e06d65e407")
+	)
+	(wire
+		(pts
+			(xy 186.69 89.662) (xy 172.212 89.662)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "79b9013e-3efb-428c-b624-ac42f6aa2d63")
 	)
 	(wire
 		(pts
@@ -2389,6 +2502,16 @@
 			(type default)
 		)
 		(uuid "b60cf70c-e81f-4bfd-ae93-494645471c7d")
+	)
+	(wire
+		(pts
+			(xy 172.212 89.662) (xy 172.212 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b6f242c7-95f1-40fa-af34-5e19bc301458")
 	)
 	(wire
 		(pts
@@ -2562,16 +2685,6 @@
 	)
 	(wire
 		(pts
-			(xy 172.212 84.074) (xy 172.212 80.01)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fa972ce4-441a-465c-8141-da7e116fce2c")
-	)
-	(wire
-		(pts
 			(xy 119.888 119.634) (xy 131.318 119.634)
 		)
 		(stroke
@@ -2589,6 +2702,26 @@
 			(type default)
 		)
 		(uuid "fde6939a-2e9b-44f7-928c-e70a0225fe5b")
+	)
+	(text "Brake -"
+		(exclude_from_sim no)
+		(at 199.39 97.028 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "5a1b9120-6fff-4de4-a24d-0c928d2e9f69")
+	)
+	(text "Brake +12v"
+		(exclude_from_sim no)
+		(at 200.914 93.98 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "781b2505-f6a5-404a-867c-11bb30c8a7da")
 	)
 	(label "+5V"
 		(at 74.168 59.182 0)
@@ -2622,16 +2755,15 @@
 	)
 	(symbol
 		(lib_id "Connector:Screw_Terminal_01x02")
-		(at 183.388 84.074 0)
+		(at 193.548 93.98 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "08a86852-1710-43fd-bf01-5d8f899a358e")
 		(property "Reference" "J1"
-			(at 185.42 84.0739 0)
+			(at 192.024 90.932 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2639,8 +2771,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "Screw_Terminal_01x02"
-			(at 185.42 86.6139 0)
+		(property "Value" "Vehicle Brakes"
+			(at 188.214 100.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2649,7 +2781,7 @@
 			)
 		)
 		(property "Footprint" "Davids_Footprints:KF350 2 Pin Terminal Block"
-			(at 183.388 84.074 0)
+			(at 193.548 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2658,7 +2790,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 183.388 84.074 0)
+			(at 193.548 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2667,7 +2799,7 @@
 			)
 		)
 		(property "Description" "Generic screw terminal, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
-			(at 183.388 84.074 0)
+			(at 193.548 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3584,7 +3716,7 @@
 		(fields_autoplaced yes)
 		(uuid "807acbc2-64f0-4c72-8808-6a99043ac5a4")
 		(property "Reference" "R3"
-			(at 122.936 66.8019 0)
+			(at 123.19 66.8019 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3592,8 +3724,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "1K"
-			(at 122.936 69.3419 0)
+		(property "Value" "10K"
+			(at 123.19 69.3419 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3922,72 +4054,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:+3V3")
-		(at 172.212 80.01 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "aa0934d9-d2c9-4168-bcbd-490e294e20be")
-		(property "Reference" "#PWR09"
-			(at 172.212 83.82 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+3V3"
-			(at 172.212 75.692 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 172.212 80.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 172.212 80.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+3V3\""
-			(at 172.212 80.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "8a3900fc-6824-4139-9228-da7621dca9b9")
-		)
-		(instances
-			(project "Acceleration Logger"
-				(path "/9ffc3f79-5742-486a-81da-0f55a501c912"
-					(reference "#PWR09")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:R_Small_US")
 		(at 163.576 87.122 0)
 		(unit 1)
@@ -3998,7 +4064,7 @@
 		(fields_autoplaced yes)
 		(uuid "b738cfdd-3cf3-4cc4-9de1-6ebc5fac6721")
 		(property "Reference" "R2"
-			(at 165.354 85.8519 0)
+			(at 166.37 85.8519 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4006,8 +4072,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "1K"
-			(at 165.354 88.3919 0)
+		(property "Value" "330"
+			(at 166.37 88.3919 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4052,6 +4118,73 @@
 			(project "Acceleration Logger"
 				(path "/9ffc3f79-5742-486a-81da-0f55a501c912"
 					(reference "R2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:Earth")
+		(at 186.69 104.14 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "bf9843e0-0f64-45f4-b414-16e27d42d7d1")
+		(property "Reference" "#PWR9"
+			(at 186.69 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "Earth"
+			(at 186.69 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" ""
+			(at 186.69 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 186.69 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"Earth\""
+			(at 186.69 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a69cc947-47bd-4593-b9e2-942649907204")
+		)
+		(instances
+			(project "Acceleration Logger"
+				(path "/9ffc3f79-5742-486a-81da-0f55a501c912"
+					(reference "#PWR9")
 					(unit 1)
 				)
 			)
@@ -4210,7 +4343,7 @@
 		)
 	)
 	(symbol
-		(lib_id "Davids_Symbols:NPN_Transistor_with_correct_pinout_for_SOT-23")
+		(lib_id "Transistor_FET:IRLML6244")
 		(at 169.672 96.52 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -4228,7 +4361,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "2N3904"
+		(property "Value" "IRLML6344"
 			(at 175.26 97.7899 0)
 			(effects
 				(font
@@ -4238,7 +4371,7 @@
 			)
 		)
 		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-			(at 174.752 98.552 0)
+			(at 174.752 98.425 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4248,8 +4381,8 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://www.onsemi.com/pub/Collateral/MMBTA42LT1-D.PDF"
-			(at 162.814 75.438 0)
+		(property "Datasheet" "https://www.infineon.com/dgdl/Infineon-IRLML6244-DataSheet-v01_01-EN.pdf?fileId=5546d462533600a4015356686fed261f"
+			(at 174.752 100.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4258,8 +4391,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "0.5A Ic, 300V Vce, NPN High Voltage Transistor, SOT-23"
-			(at 203.454 87.884 0)
+		(property "Description" "6.3A Id, 20V Vds, 21mOhm Rds, N-Channel StrongIRFET Power MOSFET, SOT-23"
+			(at 169.672 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
