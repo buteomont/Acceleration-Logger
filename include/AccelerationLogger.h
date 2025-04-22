@@ -14,3 +14,6 @@ int const INTERRUPT_PIN = 3;  // The interruption #0 pin on the MPU6050
 
 #define SSID_SIZE 20
 #define PASSWORD_SIZE 20
+
+#define AVERAGE_SAMPLE_SIZE 10 //number of samples to take before averaging the values
+#define SAMPLE_INTERVAL_MS 50 //number of milliseconds between samples

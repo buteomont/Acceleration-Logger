@@ -26,9 +26,6 @@
 
 MPU6050 accelgyro;
 
-int16_t ax, ay, az;
-int16_t gx, gy, gz;
-
 
 /* MPU6050 default I2C address is 0x68*/
 //MPU6050 mpu;
@@ -77,6 +74,7 @@ typedef struct
   int sensitivity=1000;     //This is braking sensitivity. Lower is more sensitive.
   char ssid[SSID_SIZE] = "logger"; //connect to this SSID on your phone to configure
   char wifiPass[PASSWORD_SIZE] = "12345678";
+  int level=0;            // This is the zero Y-value when the unit is at rest
   } conf;
 
 conf settings; //all settings in one struct makes it easier to store in EEPROM
@@ -84,6 +82,11 @@ boolean settingsAreValid=false;
 
 String lastMessage=""; //contains the last message sent to display. Sometimes need to reshow it
 boolean rssiShowing=false; //used to redraw the RSSI indicator after clearing display
+
+//readings
+int16_t ax, ay, az;
+int16_t gx, gy, gz;
+int16_t averageSlopeX, averageSlopeY, averageSlopeZ;
 
 
 /*---MPU6050 Control/Status Variables---*/
@@ -174,7 +177,12 @@ void show(String msg, bool override)
   settings.displayenabled=oldVal;     //Put it back
   }
 
-
+void showAndDelay(String msg)
+  {
+  show(msg,true);
+  delay(2000);
+  show(""); //clear the display afterwards
+  }
 
 void handleWebSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
   {
@@ -218,6 +226,12 @@ void handleWebSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t l
       serializeJson(doc, message);
       webSocket.sendTXT(num, message);
 
+      //send level offset
+      doc["key"] = "zeroLevel";
+      doc["value"] = settings.level;
+      serializeJson(doc, message);
+      webSocket.sendTXT(num, message);
+
       break;
       }
     case WStype_TEXT:
@@ -237,12 +251,14 @@ void handleWebSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t l
           {
           settings.sensitivity = map(value,0,100,5000,0);
           saveSettings();
+          showAndDelay("Sense:"+String(settings.sensitivity));
           }
         else if (key == "displayEnabled")
           {
           // value should be 1 (checked) or 0 (unchecked)
           settings.displayenabled = (value != 0);
           saveSettings();
+          showAndDelay(String("Display\n")+(settings.displayenabled?"Enabled":"Disabled"));
           }
         else if (key == "displayInverted")
           {
@@ -250,16 +266,25 @@ void handleWebSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t l
           settings.invertdisplay = (value != 0);
           saveSettings();
           display.setRotation(settings.invertdisplay?2:0); //make it look right
+          showAndDelay(String("Display\n")+(settings.invertdisplay?"inverted":"normal"));
           }
         else if (key == "WiFiSSID")
           {
           strcpy(settings.ssid, doc["value"]);
           saveSettings();
+          showAndDelay(String("SSID:\n")+settings.ssid);
           }
         else if (key == "WiFiPass")
           {
           strcpy(settings.wifiPass, doc["value"]);
           saveSettings();
+          showAndDelay(String("Passwd:\n")+settings.wifiPass);
+          }
+        else if (key == "zeroLevel")
+          {
+          settings.level = atoi(doc["value"]);
+          saveSettings();
+          showAndDelay("Level:\n"+String(settings.level));
           }
 
         }
@@ -337,7 +362,35 @@ void sendUpdates()
     show("Display OK");
   }
   
+void calculateAverages()
+  {
+  static int8_t sampleCount=0;
+  static int samples[AVERAGE_SAMPLE_SIZE][3];
 
+  //get the values from the gyro and save them in the sample array
+  accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz); 
+  samples[sampleCount][0]=ax;
+  samples[sampleCount][1]=ay;
+  samples[sampleCount][2]=az;
+
+  if (sampleCount++ > AVERAGE_SAMPLE_SIZE) //Then the sample array is full, so add them and clear it.
+    {
+    int32_t sumX=0;
+    int32_t sumY=0;
+    int32_t sumZ=0;
+    for (int x=0;x<AVERAGE_SAMPLE_SIZE;x++)
+      {
+      sumX+=samples[x][0];
+      sumY+=samples[x][1];
+      sumZ+=samples[x][2];
+      }
+    sampleCount=0; //reset the counter
+
+    averageSlopeX=sumX/AVERAGE_SAMPLE_SIZE;
+    averageSlopeY=sumY/AVERAGE_SAMPLE_SIZE;
+    averageSlopeZ=sumZ/AVERAGE_SAMPLE_SIZE;
+    }
+  }
 
 
 void setup() 
@@ -348,6 +401,8 @@ void setup()
   Wire.begin(SDA_PIN, SCL_PIN);
   Wire.setClock(400000); // 400kHz I2C clock. Comment on this line if having compilation difficulties
   initDisplay();
+  show("Startup",true);
+
   accelgyro.initialize();
 
   show(accelgyro.testConnection() ? "MPU6050 OK" : "MPU6050 Fail",true);
@@ -390,16 +445,15 @@ void setup()
 void loop() 
   {
   static unsigned long previousMillis = 0;
-  const unsigned long interval = 250; // interval in milliseconds
 
   unsigned long currentMillis = millis();
-  if (currentMillis - previousMillis >= interval) 
+  if (currentMillis - previousMillis >= SAMPLE_INTERVAL_MS) 
     {
     previousMillis = currentMillis;
-    accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
-    sprintf(dispbuf,"X%05d Y%05d Z%05d\nX%05d Y%05d Z%05d",ax,ay,az,gx,gy,gz);
+    calculateAverages();
+    sprintf(dispbuf,"X%05d Y%05d Z%05d\nX%05d Y%05d Z%05d",averageSlopeX,averageSlopeY,averageSlopeZ,gx,gy,gz);
     show(String(dispbuf));
-    digitalWrite(BRAKE_LED_PORT, ay<(-settings.sensitivity));
+    digitalWrite(BRAKE_LED_PORT, (averageSlopeY-settings.level)<(-settings.sensitivity));
     }
 
   webSocket.loop(); // Keep WebSocket server running

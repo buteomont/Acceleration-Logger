@@ -18,7 +18,9 @@
       <legend><h3>Settings</h3></legend>
       <label for="sensitivity">Sensitivity: </label>
       <input type="range" id="sensitivity" min="0" max="100" value="50" oninput="sendControl('sensitivity', this.value)">
-      <span id="sensitivityValue">50</span>
+      <span id="sensitivityValue">50</span> &nbsp;&nbsp;&nbsp;
+      <button id="zeroLevel" onclick="sendControl('zeroLevel', document.getElementById('accely').textContent)">Set Level</button>
+      &nbsp;<span id="zeroLevelValue">0</span> 
       <br><br>
       <fieldset>
         <legend>Display</legend>
@@ -81,7 +83,11 @@
             {
             document.getElementById("WiFiPassValue").value = data.value;
             }
-          }
+          else if (data.key === "zeroLevel")
+            {
+            document.getElementById("zeroLevelValue").textContent = data.value;
+            }
+         }
         
         else if (data.type === "control") 
           {

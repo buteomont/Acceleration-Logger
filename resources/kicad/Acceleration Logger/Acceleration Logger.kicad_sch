@@ -5,9 +5,9 @@
 	(uuid "9ffc3f79-5742-486a-81da-0f55a501c912")
 	(paper "A4")
 	(title_block
-		(title "Acceleration Logger and indicator")
-		(date "2025-04-07")
-		(rev "0.1.0")
+		(title "Acceleration Logger and Indicator")
+		(date "2025-04-18")
+		(rev "0.1.1")
 	)
 	(lib_symbols
 		(symbol "Connector:Screw_Terminal_01x02"
@@ -3054,7 +3054,7 @@
 				)
 			)
 		)
-		(property "Footprint" "LED_SMD:LED_1206_3216Metric"
+		(property "Footprint" "LED_THT:LED_D5.0mm"
 			(at 95.758 90.424 90)
 			(effects
 				(font

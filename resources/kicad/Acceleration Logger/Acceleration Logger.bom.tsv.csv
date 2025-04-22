@@ -1,0 +1,13 @@
+Ref		Value
+	C1,C2	1 uF
+	D1		Red
+DISP1	128x32_OLED_Display
+J1		Vehicle Brakes
+J2		USB_B_Micro
+	Q1		IRLML6344
+	R1		1K
+	R2		330
+	R3		10K
+U1		ESP8266-01s
+U2		MPU6050
+U3		MCP1700x-330xxTO

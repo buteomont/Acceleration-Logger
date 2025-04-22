@@ -1,0 +1,13 @@
+Reference	Value	Datasheet	Footprint	Qty	DNP
+C1,C2	1 uF	~	Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder	2	
+D1	Red	~	LED_SMD:LED_1206_3216Metric	1	
+DISP1	128x32_OLED_Display		Davids_Footprints:OLED_0.91_128x32	1	
+J1	Vehicle Brakes	~	Davids_Footprints:KF350 2 Pin Terminal Block	1	
+J2	USB_B_Micro	~	Davids_Footprints:USB Micro Breakout Board	1	
+Q1	IRLML6344	https://www.infineon.com/dgdl/Infineon-IRLML6244-DataSheet-v01_01-EN.pdf?fileId=5546d462533600a4015356686fed261f	Package_TO_SOT_SMD:SOT-23	1	
+R1	1K	~	Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder	1	
+R2	330	~	Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder	1	
+R3	10K	~	Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder	1	
+U1	ESP8266-01s	https://www.universal-solder.ca/downloads/esp8266_series_modules_user_manual_en.pdf	espressif:ESP8266-01s	1	
+U2	MPU6050	https://kionixfs.azureedge.net/en/datasheet/KXTJ3-1057-Specifications-Rev-5.0.pdf	Davids_Footprints:MPU6050_Accelerometer_Module	1	
+U3	MCP1700x-330xxTO	http://ww1.microchip.com/downloads/en/DeviceDoc/20001826D.pdf	Package_TO_SOT_THT:TO-92_Inline	1	
